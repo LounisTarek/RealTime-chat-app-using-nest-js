@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        #chat-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+
+        #message-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: scroll;
+            max-height: 300px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        #message-input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+  <div id="chat-container" class="container">
+    <ul id="message-list" class="list-group mb-3"></ul>
+    <div class="input-group">
+        <input type="text" id="message-input" class="form-control" placeholder="Type your message...">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="button" id="send-button">Send</button>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <script>
+      const socket = io('http://localhost:3000'); 
+  
+      const messageList = document.getElementById('message-list');
+      const messageInput = document.getElementById('message-input');
+  
+      // Listen for 'ChatMessage' events from the server
+      socket.on('ChatMessage', (data) => {
+          displayMessage(data);
+      });
+  
+      // Handle sending messages
+      const sendButton = document.getElementById('send-button');
+      sendButton.addEventListener('click', () => {
+          sendMessage();
+      });
+  
+      messageInput.addEventListener('keypress', (event) => {
+          if (event.key === 'Enter') {
+              sendMessage();
+          }
+      });
+  
+      // Display messages in the UI
+      function displayMessage(data) {
+          const li = document.createElement('li');
+          li.textContent = `${data.message} - ${data.time}`;
+          li.classList.add('list-group-item');
+
+            li.style.backgroundColor = rgb(127 ,193 ,129); 
+            li.style.color = '#fff';
+
+          messageList.appendChild(li);
+  
+          // Scroll to the bottom to show the latest messages
+          messageList.scrollTop = messageList.scrollHeight;
+      }
+  
+      // Send message to the server
+      function sendMessage() {
+          const message = messageInput.value.trim();
+  
+          if (message !== '') {
+              // Send 'ChatMessage' event to the server
+              socket.emit('ChatMessage', { message });
+  
+              // Clear the input field
+              messageInput.value = '';
+          }
+      }
+  </script>
+  
+</body>
+</html>
